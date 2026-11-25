@@ -35,9 +35,12 @@ function mount(){ensureSiteHeader();if(!document.getElementById("legacy-navigati
    const doc=new DOMParser().parseFromString(data.header,'text/html'),root=doc.getElementById('final-site-shell');if(!root?.querySelector('.final-site-nav'))return;
    root.querySelectorAll('script').forEach(s=>s.remove());
    const oldOptions=[...previous.querySelectorAll('[data-final-lang]')];
+   root.querySelectorAll('#home-daily-alerts').forEach(e=>e.remove());
    const currentAlerts=document.getElementById('home-daily-alerts');
-   if(currentAlerts)root.querySelector('.final-header-tools')?.prepend(currentAlerts);
+   if(currentAlerts){const tools=root.querySelector('.final-header-tools');tools?.prepend(currentAlerts);tools?.classList.add('has-daily-alerts')}
+   for(const link of root.querySelectorAll('.final-site-nav a')){try{const key=new URL(link.href).pathname.split('/').filter(Boolean)[0];const img=link.querySelector('img');if(img&&data.icons?.[key]){img.src=data.icons[key];img.classList.add('approved-nav-icon')}}catch{}}
    const style=document.createElement('style');style.id='home-single-header-source';style.textContent=scopedCSS(data.styles);
+   style.textContent+='html body #final-site-shell#final-site-shell#final-site-shell .final-site-nav>a,html body #final-site-shell#final-site-shell#final-site-shell .final-site-nav>button{min-height:48px!important}html body #final-site-shell#final-site-shell#final-site-shell .final-site-nav img{width:42px!important;height:42px!important;object-fit:contain!important}';
    document.head.append(style);root.classList.add('site-fixed-header');root.dataset.sharedHome='true';
    previous.replaceWith(root);
    let spacer=document.getElementById('shared-home-header-spacer');
@@ -54,7 +57,8 @@ function mount(){ensureSiteHeader();if(!document.getElementById("legacy-navigati
    if(group&&options.length){
     const menu=document.createElement('div');menu.className='preview-language-menu';menu.id='shared-home-language-options';menu.hidden=true;menu.setAttribute('role','group');menu.setAttribute('aria-label','Language');
     const names={en:'English',pt:'Português',es:'Español',pl:'Polski'};
-    for(const option of options){const name=document.createElement('span');name.className='preview-option-name';name.textContent=names[option.dataset.finalLang];option.append(name);menu.append(option)}
+    group.replaceChildren(...options);
+    for(const option of options){let name=option.querySelector('.preview-option-name');if(!name){name=document.createElement('span');name.className='preview-option-name';option.append(name)}name.textContent=names[option.dataset.finalLang];menu.append(option)}
     const trigger=document.createElement('button');trigger.type='button';trigger.className='preview-language-trigger';trigger.setAttribute('aria-haspopup','true');trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-controls',menu.id);trigger.innerHTML='<img alt=""><span class="preview-language-name"></span><span class="preview-language-chevron" aria-hidden="true"></span>';
     group.classList.add('preview-language-dropdown');group.append(trigger,menu);
     function choose(lang,bridge){
