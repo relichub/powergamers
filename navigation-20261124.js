@@ -31,7 +31,7 @@ function mount(){ensureSiteHeader();if(!document.getElementById("legacy-navigati
  async function load(){
   const previous=document.getElementById('final-site-shell');if(!previous)return;
   try{
-   const response=await fetch(endpoint);if(!response.ok)return;const data=await response.json();if(data.version!==1||!data.header)return;
+   const response=await fetch(endpoint+'?minute='+Math.floor(Date.now()/60000),{cache:'no-store'});if(!response.ok)return;const data=await response.json();if(data.version!==1||!data.header)return;
    const doc=new DOMParser().parseFromString(data.header,'text/html'),root=doc.getElementById('final-site-shell');if(!root?.querySelector('.final-site-nav'))return;
    root.querySelectorAll('script').forEach(s=>s.remove());
    const oldOptions=[...previous.querySelectorAll('[data-final-lang]')];
